@@ -1,0 +1,553 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Gemini Flash 2.5 — Junry Pacot</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: "Poppins", sans-serif;
+      background: radial-gradient(circle at top left, #0b0f1a 0%, #000 100%);
+      background-attachment: fixed;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 100vh;
+      padding: 20px 15px;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* Animated background particles */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: 
+        radial-gradient(2px 2px at 20px 30px, #eee, transparent),
+        radial-gradient(2px 2px at 40px 70px, rgba(255,255,255,0.8), transparent),
+        radial-gradient(1px 1px at 90px 40px, #fff, transparent),
+        radial-gradient(1px 1px at 130px 80px, rgba(255,255,255,0.6), transparent),
+        radial-gradient(2px 2px at 160px 30px, #ddd, transparent);
+      background-repeat: repeat;
+      background-size: 200px 100px;
+      animation: sparkle 20s linear infinite;
+      opacity: 0.1;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    @keyframes sparkle {
+      from { transform: translateY(0px); }
+      to { transform: translateY(-200px); }
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 40px;
+      animation: fadeInDown 1s ease;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      background: linear-gradient(90deg, #7c4dff, #00d2ff);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      margin-bottom: 10px;
+      position: relative;
+    }
+
+    h1::after {
+      content: '';
+      position: absolute;
+      bottom: -5px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 60px;
+      height: 2px;
+      background: linear-gradient(90deg, #7c4dff, #00d2ff);
+      border-radius: 1px;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: translateX(-50%) scaleX(1); }
+      50% { opacity: 0.5; transform: translateX(-50%) scaleX(1.2); }
+    }
+
+    .subtitle {
+      color: #aab3cf;
+      font-size: 1.1rem;
+      max-width: 600px;
+      opacity: 0;
+      animation: fadeInUp 1s ease 0.5s forwards;
+    }
+
+    .main-container {
+      width: 100%;
+      max-width: 720px;
+      display: flex;
+      flex-direction: column;
+      gap: 30px;
+    }
+
+    .input-section, .output-section {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 20px;
+      padding: 32px;
+      box-shadow: 
+        0 20px 40px rgba(0, 0, 0, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(20px);
+      position: relative;
+      overflow: hidden;
+      animation: cardFloat 6s ease-in-out infinite;
+    }
+
+    .input-section::before, .output-section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, #7c4dff, #00d2ff, transparent);
+      opacity: 0.5;
+    }
+
+    @keyframes cardFloat {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-5px); }
+    }
+
+    .input-section {
+      animation: fadeInUp 1s ease;
+    }
+
+    .output-section {
+      animation: fadeInUp 1s ease 0.3s both;
+      min-height: 200px;
+      display: flex;
+      align-items: flex-start;
+    }
+
+    .input-group {
+      margin-bottom: 24px;
+    }
+
+    .input-group:last-child {
+      margin-bottom: 0;
+    }
+
+    label {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #c8d2f0;
+      margin-bottom: 12px;
+      opacity: 0.9;
+      transition: opacity 0.3s ease;
+    }
+
+    label:hover {
+      opacity: 1;
+    }
+
+    .icon {
+      width: 20px;
+      height: 20px;
+      color: #7c4dff;
+      opacity: 0.8;
+      flex-shrink: 0;
+    }
+
+    textarea {
+      width: 100%;
+      border: none;
+      border-radius: 16px;
+      padding: 20px;
+      font-size: 1rem;
+      background: rgba(255, 255, 255, 0.06);
+      color: #fff;
+      resize: vertical;
+      outline: none;
+      transition: all 0.3s ease;
+      min-height: 120px;
+      line-height: 1.6;
+      position: relative;
+    }
+
+    textarea:focus {
+      background: rgba(255, 255, 255, 0.1);
+      box-shadow: 
+        0 0 0 3px rgba(124, 77, 255, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      transform: translateY(-1px);
+    }
+
+    textarea::placeholder {
+      color: #9aa4bf;
+    }
+
+    .file-input-wrapper {
+      position: relative;
+      display: block;
+      width: 100%;
+    }
+
+    input[type="file"] {
+      width: 100%;
+      padding: 20px;
+      border: 2px dashed rgba(255, 255, 255, 0.15);
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.03);
+      color: #c8d2f0;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-align: center;
+      font-size: 0.95rem;
+    }
+
+    input[type="file"]:hover {
+      border-color: rgba(124, 77, 255, 0.4);
+      background: rgba(255, 255, 255, 0.06);
+      transform: translateY(-1px);
+    }
+
+    input[type="file"]::file-selector-button {
+      background: linear-gradient(90deg, #7c4dff, #00d2ff);
+      color: #fff;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-right: 10px;
+      transition: all 0.3s ease;
+    }
+
+    input[type="file"]::file-selector-button:hover {
+      transform: scale(1.05);
+    }
+
+    .preview {
+      display: none;
+      margin-top: 20px;
+      text-align: center;
+      position: relative;
+      animation: fadeInScale 0.6s ease;
+    }
+
+    @keyframes fadeInScale {
+      from { opacity: 0; transform: scale(0.9); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .preview img {
+      max-width: 30%;
+      height: auto;
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+      transition: transform 0.3s ease;
+    }
+
+    .preview img:hover {
+      transform: scale(1.05);
+    }
+
+    .remove-btn {
+      position: absolute;
+      top: -10px;
+      right: -10px;
+      background: rgba(255, 0, 0, 0.8);
+      color: #fff;
+      border: none;
+      border-radius: 50%;
+      width: 36px;
+      height: 36px;
+      font-size: 1.2rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 15px rgba(255, 0, 0, 0.3);
+    }
+
+    .remove-btn:hover {
+      background: rgba(255, 0, 0, 1);
+      transform: scale(1.1) rotate(90deg);
+    }
+
+    .generate-btn {
+      width: 100%;
+      background: linear-gradient(90deg, #7c4dff, #00d2ff);
+      color: #fff;
+      font-size: 1.1rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 16px;
+      padding: 20px;
+      cursor: pointer;
+      transition: all 0.4s ease;
+      box-shadow: 0 8px 25px rgba(124, 77, 255, 0.3);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .generate-btn:hover {
+      transform: translateY(-3px) scale(1.02);
+      box-shadow: 0 12px 35px rgba(124, 77, 255, 0.4);
+    }
+
+    .generate-btn:active {
+      transform: translateY(-1px) scale(1);
+    }
+
+    .generate-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .generate-btn .icon {
+      width: 20px;
+      height: 20px;
+      color: #fff;
+      opacity: 1;
+    }
+
+    .generate-btn::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 24px;
+      height: 24px;
+      margin: -12px 0 0 -12px;
+      border: 3px solid transparent;
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      display: none;
+      z-index: 1;
+    }
+
+    .generate-btn:disabled::after {
+      display: block;
+    }
+
+    .generate-btn:disabled .icon {
+      opacity: 0;
+    }
+
+    .output {
+      font-size: 1rem;
+      line-height: 1.7;
+      white-space: pre-wrap;
+      width: 100%;
+      color: #fff;
+      overflow: auto;
+      max-height: 500px;
+      position: relative;
+    }
+
+    .output.loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #aab3cf;
+      font-style: italic;
+      min-height: 100px;
+      gap: 15px;
+    }
+
+    .output.loading::after {
+      content: '';
+      width: 24px;
+      height: 24px;
+      border: 3px solid rgba(124, 77, 255, 0.3);
+      border-top-color: #7c4dff;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    .output.error {
+      color: #ff6b6b;
+      border-left: 4px solid #ff6b6b;
+      padding-left: 20px;
+    }
+
+    .output.success {
+      border-left: 4px solid #7c4dff;
+      padding-left: 20px;
+      animation: glow 2s ease-in-out infinite alternate;
+    }
+
+    @keyframes glow {
+      from { box-shadow: 0 0 5px rgba(124, 77, 255, 0.3); }
+      to { box-shadow: 0 0 20px rgba(124, 77, 255, 0.6); }
+    }
+
+    .typing-cursor {
+      display: inline-block;
+      width: 2px;
+      height: 1.2em;
+      background: #7c4dff;
+      vertical-align: bottom;
+      animation: blink 1s infinite;
+      margin-left: 2px;
+    }
+
+    @keyframes blink {
+      0%, 50% { opacity: 1; }
+      51%, 100% { opacity: 0; }
+    }
+
+    .footer {
+      margin-top: 50px;
+      font-size: 0.9rem;
+      color: #9aa4bf;
+      text-align: center;
+      opacity: 0;
+      animation: fadeInUp 1s ease 0.6s forwards;
+    }
+
+    .footer a {
+      color: #7c4dff;
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.3s ease;
+    }
+
+    .footer a:hover {
+      color: #00d2ff;
+      text-decoration: underline;
+    }
+
+    @keyframes fadeInDown {
+      from {
+        opacity: 0;
+        transform: translateY(-40px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(40px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 2rem;
+      }
+
+      .input-section,
+      .output-section {
+        padding: 24px;
+      }
+
+      textarea {
+        min-height: 100px;
+        padding: 16px;
+      }
+
+      .preview img {
+        max-width: 50%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <h1>Gemini Flash 2.5</h1>
+    <p class="subtitle">Ask Gemini a question or upload an image for analysis and explanation.</p>
+  </header>
+
+  <div class="main-container">
+    <section class="input-section">
+      <div class="input-group">
+        <label for="prompt">
+          <i class='bx bx-message-rounded icon'></i>
+          Type your question or instruction:
+        </label>
+        <textarea 
+          id="prompt" 
+          rows="4" 
+          placeholder="Example: Explain this picture or tell me how AI understands images..."
+        ></textarea>
+      </div>
+
+      <div class="input-group">
+        <label for="imageInput">
+          <i class='bx bx-image icon'></i>
+          Optional: Upload an image to analyze
+        </label>
+        <div class="file-input-wrapper">
+          <input 
+            type="file" 
+            id="imageInput" 
+            accept="image/*"
+          >
+        </div>
+
+        <div class="preview" id="preview">
+          <button class="remove-btn" id="removeBtn">
+            <i class='bx bx-trash'></i>
+          </button>
+          <img id="previewImg" alt="Image preview">
+        </div>
+      </div>
+
+      <button id="generate" class="generate-btn">
+        <i class='bx bx-send icon'></i>
+        Ask Gemini
+      </button>
+    </section>
+
+    <section class="output-section">
+      <div class="output" id="output">Your answer will appear here...</div>
+    </section>
+  </div>
+</body>
+</html>
